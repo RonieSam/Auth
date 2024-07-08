@@ -27,7 +27,7 @@ async function handleSignUp(req, res) {
 async function handleSignIn(req,res) {
   try {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) return res.status(400).json({ msg: errors.errors[0], success: false })
+    if (!errors.isEmpty()) return res.status(400).json({ msg: errors.errors[0].msg, success: false })
     const { email, password } = req.body
     const user = await userModel.findOne({
       email: email,
@@ -36,7 +36,7 @@ async function handleSignIn(req,res) {
     const hashedPassword=crypto.createHmac("sha256",user.salt).update(password).digest('hex')
     if(hashedPassword!==user.password)return res.status(400).json({msg:"Email Id and Password do not match",success:false})
     const jwtToken=getToken(user)
-    return res.status(200).json({msg:"Successfully Signed In",success:true,auth:jwtToken})
+    return res.status(200).json({msg:"Successfully Signed In",success:true,auth:jwtToken,user:user})
   }
   catch(error) {
     console.log(error)
